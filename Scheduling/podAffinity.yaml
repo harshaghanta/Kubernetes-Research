@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp1-deploy
+spec:
+  selector:
+    matchLabels:
+      app: sampleapp1
+  template:
+    metadata:
+      labels:
+        app: sampleapp1
+    spec:
+      containers:
+      - name: sampleapp1
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleapp2-deploy
+spec:
+  selector:
+    matchLabels:
+      app: sampleapp2
+  template:
+    metadata:
+      labels:
+        app: sampleapp2
+    spec:
+      containers:
+      - name: sampleapp2
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key : app
+                operator: In
+                values:
+                - sampleapp1
+            topologyKey: "kubernetes.io/hostname"
+

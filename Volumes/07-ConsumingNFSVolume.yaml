@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-nginx-deploy
+spec:
+  selector:
+    matchLabels:
+      app: nginxapp
+  template:
+    metadata:
+      labels:
+        app: nginxapp
+    spec:
+      containers:
+      - name: nginxapp
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name:  sample-volume-mount
+          mountPath:  /usr/share/nginx/html
+      volumes:
+      - name:  sample-volume-mount
+        persistentVolumeClaim:
+          claimName: mypvc-nfs-pvc1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: samplenginx-service
+spec:
+  selector:
+    app: nginxapp
+  ports:
+  - port: 31005
+    targetPort: 80
+    nodePort: 31005
+  type: NodePort
+
